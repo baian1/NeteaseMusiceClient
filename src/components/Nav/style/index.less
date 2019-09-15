@@ -1,0 +1,74 @@
+@import "../../../style/gobal.less";
+@prefix: nav;
+
+.@{prefix} {
+  overflow-y: auto;
+  flex: 1 0 0;
+
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 5px;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: #aaa;
+    border-radius: 4px;
+  }
+
+  &-ul {
+    & > div {
+      margin: 30px 0 10px;
+    }
+    & > .title {
+      font-size: 10px;
+      color: rgb(153, 153, 158);
+      margin-left: 10px;
+    }
+    i {
+      font-size: 18px;
+      margin: 0 10px;
+    }
+    li {
+      font-size: 13px;
+      height: 40px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+    }
+    li:hover {
+      background-color: rgb(215, 219, 219);
+    }
+    li .item {
+      transition: transform 0.3s;
+    }
+    li:active .item {
+      transform: scale(0.98, 0.98);
+    }
+    li.li-active {
+      border-left: 2px red solid;
+      background-color: rgb(221, 212, 212);
+    }
+  }
+}
+
+.@{prefix}-wrap {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 200px;
+  border-right: 0.1px solid rgb(185, 181, 181);
+  &-hidden {
+    width: 45px;
+  }
+  .show-hidden {
+    padding: 10px 10px;
+    font-size: 18px;
+    & i:active {
+      text-shadow: 0px 0.5px 0.4px #333333;
+    }
+  }
+  .user-information {
+    height: 60px;
+    border-right: 0.1px solid rgb(185, 181, 181);
+    border-top: 0.1px solid rgb(185, 181, 181);
+  }
+}
