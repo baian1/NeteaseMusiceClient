@@ -4,6 +4,7 @@ const CleanWebpackPlugin = require("clean-webpack-plugin")
 const ManifestPlugin = require("webpack-manifest-plugin")
 const DashboardPlugin = require("webpack-dashboard/plugin")
 const webpack = require("webpack")
+const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin")
 
 module.exports = {
   entry: {
@@ -43,6 +44,17 @@ module.exports = {
         ],
       },
       {
+        test: /\.css$/,
+        use: [
+          {
+            loader: "style-loader",
+          },
+          {
+            loader: "css-loader",
+          },
+        ],
+      },
+      {
         test: /\.(jpg|png|woff|woff2|eot|ttf|svg)$/,
         use: ["file-loader"],
       },
@@ -67,5 +79,10 @@ module.exports = {
   },
   resolve: {
     extensions: [".ts", ".tsx", ".js"],
+    plugins: [
+      new TsconfigPathsPlugin({
+        configFile: "./tsconfig.json",
+      }),
+    ],
   },
 }

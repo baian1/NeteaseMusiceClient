@@ -59,7 +59,7 @@ const menuNav: NavData[] = [
   {
     icon: "iconfont icon-icon-",
     name: "发现音乐",
-    path: "/home",
+    path: "/home/findmusic",
     active: false,
   },
   {

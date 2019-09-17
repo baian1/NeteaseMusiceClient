@@ -33,7 +33,7 @@ module.exports = {
     },
   },
   rules: {
-    indent: [4, 2, { SwitchCase: 1 }],
+    indent: [0, 2, { SwitchCase: 1 }],
     "no-console": 1,
 
     "react/jsx-uses-vars": 1,

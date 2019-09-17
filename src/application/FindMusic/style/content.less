@@ -1,0 +1,28 @@
+@prefix: content;
+
+.@{prefix} {
+  &-wrap {
+    padding-top: 20px;
+    padding-right: 30px;
+    flex: 1;
+    height: 0;
+    overflow-x: auto;
+    overflow-y: overlay;
+    display: flex;
+    flex-direction: column;
+    justify-items: start;
+    align-items: center;
+    &::-webkit-scrollbar {
+      width: 8px;
+      height: 5px;
+    }
+    &::-webkit-scrollbar-thumb {
+      background-color: #aaa;
+      border-radius: 4px;
+    }
+  }
+  &-content {
+    max-width: 1000px;
+    min-width: 520px;
+  }
+}

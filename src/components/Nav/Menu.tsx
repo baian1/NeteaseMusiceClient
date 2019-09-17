@@ -19,8 +19,11 @@ const Menu: React.FunctionComponent<P> = ({
         ? null
         : data.map(item => {
             const element = (
-              <NavLink to={item.path} style={{ color: "black" }}>
-                <li key={item.name} className={item.active ? "li-active" : ""}>
+              <NavLink
+                to={item.path}
+                style={{ color: "black" }}
+                key={item.name}>
+                <li className={item.active ? "li-active" : ""}>
                   <div className={"item"}>
                     <i className={`${item.icon}`}></i>
                     {mode === "thumbnails" ? null : item.name}

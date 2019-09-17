@@ -12,8 +12,8 @@ const Mymusic: React.FunctionComponent<P> = ({ data = [] }) => {
       <div className="title">我的音乐</div>
       {data.map(item => {
         const element = (
-          <NavLink to={item.path} style={{ color: "black" }}>
-            <li key={item.name} className={item.active ? "li-active" : ""}>
+          <NavLink key={item.name} to={item.path} style={{ color: "black" }}>
+            <li className={item.active ? "li-active" : ""}>
               <div className={"item"}>
                 <i className={`${item.icon}`}></i>
                 {item.name}

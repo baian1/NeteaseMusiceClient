@@ -1,5 +1,7 @@
 import React from "react"
 
-const Palyer: React.FunctionComponent<{}> = () => {}
+const Player: React.FunctionComponent<{}> = () => {
+  return <div>11</div>
+}
 
 export default Player

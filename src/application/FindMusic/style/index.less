@@ -1,8 +1,31 @@
-@prefix: home;
+@prefix: FindMusic;
 
 .@{prefix} {
   &-wrap {
-    margin: 20px 30px;
+    padding: 20px 0px 20px 30px;
     flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  &-title {
+    color: rgb(123, 129, 129);
+    font-size: 5px;
+  }
+  &-nav {
+    margin: 15px 0 0;
+    margin-right: 30px;
+    border-bottom: 1px solid rgb(168, 168, 168);
+    font-size: 15px;
+    .item {
+      display: inline-block;
+      margin-right: 20px;
+      padding: 10px 0 10px 0px;
+
+      &-active {
+        color: rgb(180, 0, 0);
+        border-bottom: 2px rgb(180, 0, 0) solid;
+      }
+    }
   }
 }

@@ -1,0 +1,70 @@
+@prefix: recommend;
+
+.@{prefix} {
+  &-wrap {
+    align-self: stretch;
+    margin: 20px 0;
+  }
+
+  &-header {
+    display: flex;
+    border-bottom: 1px solid #a8a8a8;
+    flex-direction: row;
+    padding-bottom: 10px;
+    justify-content: space-between;
+    & .title {
+      font-size: 16px;
+    }
+    & .more {
+      font-size: 13px;
+      color: rgb(160, 159, 159);
+    }
+  }
+  &-songlist {
+    display: flex;
+    flex-wrap: wrap;
+    overflow: hidden;
+    margin: 0 -10px;
+
+    .song {
+      position: relative;
+      margin: 10px 10px;
+      width: 33%;
+      height: auto;
+      flex: 1;
+      min-width: 155px;
+      max-width: 200px;
+      overflow: hidden;
+      transition: transform 0.3s;
+      transition: opacity 0.3s;
+      &:hover {
+        opacity: 0.7;
+      }
+      &:active {
+        transform: scale(0.98, 0.98);
+      }
+      img {
+        width: 100%;
+      }
+      .name {
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+      .play-count {
+        position: absolute;
+        top: 0;
+        right: 0;
+        color: white;
+        font-size: 8px;
+        line-height: 16px;
+        padding-right: 5px;
+        background: linear-gradient(
+          to right,
+          rgba(136, 136, 136, 0.158),
+          rgba(44, 44, 44, 0.479)
+        );
+      }
+    }
+  }
+}
