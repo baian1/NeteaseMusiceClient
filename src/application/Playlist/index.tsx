@@ -12,7 +12,7 @@ import ScrollLoad from "@/components/ScrollLoad"
 import { playListMockData } from "./initData"
 
 const prefix = "PlayList"
-const MaxPlayList = 6
+const MaxPlayList = 8
 
 const PlayList: React.FunctionComponent<{}> = () => {
   //当前歌单种类和所有歌单种类
@@ -80,6 +80,7 @@ const PlayList: React.FunctionComponent<{}> = () => {
   }, [playList])
   //无限加载的加载函数
   const loadMore = useMemo(() => {
+    let total = 0
     let isLoading = false
     let playListLength = initPlayListsCount
     let onceLoadCount = 22
@@ -87,11 +88,16 @@ const PlayList: React.FunctionComponent<{}> = () => {
       if (isLoading) {
         return
       }
+      if (total <= playListLength) {
+        alert("没有更多歌单了")
+        return
+      }
       getPlayLists(playListLength, onceLoadCount, cat)
         .then(res => res.data)
         .then(data => {
+          total = data.total
           setPlayList(oldData => {
-            playListLength = playListLength + onceLoadCount
+            playListLength = playListLength + data.playlists.length
             return [...oldData, ...data.playlists]
           })
         })
