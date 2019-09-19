@@ -1,5 +1,5 @@
 import "./style/index.less"
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useMemo } from "react"
 import {
   CategoryInterface,
   getCategorylists,
@@ -12,9 +12,15 @@ const prefix = "PlayList"
 const MaxPlayList = 6
 
 const PlayList: React.FunctionComponent<{}> = () => {
+  //当前歌单种类和所有歌单种类
   const [categoryLists, setCategoryLists] = useState<CategoryInterface[]>([])
   const [cat, setCat] = useState<string>("全部歌单")
 
+  //种类选择模拟弹窗组件控制
+  const [selectCatPosition, setPosition] = useState<[number, number]>([0, 0])
+  const [selectCatShowState, setselectCatShowState] = useState<boolean>(false)
+
+  //根据种类列表
   useEffect(() => {
     getCategorylists()
       .then(res => res.data)
@@ -23,6 +29,7 @@ const PlayList: React.FunctionComponent<{}> = () => {
       })
   }, [cat])
 
+  //热门歌单种类导航
   const hotCatLists = []
   let hotCatCount = 0
   for (let item of categoryLists) {
@@ -39,18 +46,18 @@ const PlayList: React.FunctionComponent<{}> = () => {
     }
   }
 
+  //初始化歌单
+  const initPlayListsCount = 40
   const [playList, setPlayList] = useState<PlayListInterface[]>([])
   useEffect(() => {
-    getPlayLists(0, 40, cat)
+    getPlayLists(0, initPlayListsCount, cat)
       .then(res => res.data)
       .then(data => {
         setPlayList(data.playlists)
       })
   }, [cat, setPlayList])
 
-  const [selectCatPosition, setPosition] = useState<[number, number]>([0, 0])
-  const [selectCatShowState, setselectCatShowState] = useState<boolean>(false)
-
+  //图片大小自适应
   const [lineLength, setLineLength] = useState<number>(5)
   const scrollref = React.createRef<HTMLDivElement>()
   useEffect(() => {
@@ -72,24 +79,70 @@ const PlayList: React.FunctionComponent<{}> = () => {
     }
   }, [scrollref])
 
-  const loadmoreRef = React.createRef<HTMLDivElement>()
+  const placeHolderElement = useMemo<JSX.Element[]>(() => {
+    let count =
+      playList.length % lineLength === 0
+        ? 0
+        : lineLength - (playList.length % lineLength)
+    console.log(playList.length, lineLength, count)
+    const ele: JSX.Element[] = []
+    for (let i = 0; i < count; i++) {
+      ele.push(
+        <div key={"placeHolderElement" + i} className={"song"}>
+          <div className={"img-cover"}></div>
+        </div>
+      )
+    }
+    return ele
+  }, [lineLength, playList.length])
+  const palyList = useMemo(() => {
+    return playList.map((item, index) => {
+      return (
+        <div key={cat + index} className={"song"}>
+          <div className={"img-cover"}>
+            <img src={item.coverImgUrl} />
+          </div>
+          <div>
+            <div className={"name"}>{item.name}</div>
+            <div className={"creator"}>by {item.creator.nickname}</div>
+          </div>
+        </div>
+      )
+    })
+  }, [cat, playList])
+
+  const loadmoreRef = React.useRef<HTMLDivElement>(null)
+  const loadMoreEle = useMemo(() => {
+    return <div ref={loadmoreRef} className={"loadmoreFoot"}></div>
+  }, [])
+
+  const loadMore = useMemo(() => {
+    let isLoading = false
+    let playListLength = initPlayListsCount
+    let onceLoadCount = 22
+    return () => {
+      if (isLoading) {
+        return
+      }
+      getPlayLists(playListLength, onceLoadCount, cat)
+        .then(res => res.data)
+        .then(data => {
+          setPlayList(oldData => {
+            playListLength = playListLength + onceLoadCount
+            return [...oldData, ...data.playlists]
+          })
+        })
+        .then(() => {
+          isLoading = false
+        })
+    }
+  }, [cat])
+
   useEffect(() => {
-    let isLoad = false
     let observer = new IntersectionObserver(
       entries => {
-        console.log(entries[0])
-        if (entries[0].isIntersecting && isLoad === false) {
-          isLoad = true
-          getPlayLists(playList.length, 20, cat)
-            .then(res => res.data)
-            .then(data => {
-              setPlayList(oldData => {
-                return [...oldData, ...data.playlists]
-              })
-            })
-            .then(() => {
-              isLoad = false
-            })
+        if (entries[0].isIntersecting) {
+          loadMore()
         }
       },
       {
@@ -105,7 +158,7 @@ const PlayList: React.FunctionComponent<{}> = () => {
     return () => {
       observer.disconnect()
     }
-  }, [cat, loadmoreRef, playList.length])
+  }, [cat, loadMore, loadmoreRef])
 
   return (
     <>
@@ -133,25 +186,11 @@ const PlayList: React.FunctionComponent<{}> = () => {
         </ul>
       </nav>
       <div className={`${prefix}-songlist`} ref={scrollref}>
-        {playList.map((item, index) => {
-          if (
-            playList.length - Math.floor(index / lineLength) * lineLength <
-            lineLength
-          ) {
-            return null
-          }
-          return (
-            <div key={cat + index} className={"song"}>
-              <div className={"img-cover"}>
-                <img src={item.coverImgUrl} />
-              </div>
-              <div className={"name"}>{item.name}</div>
-              <div className={"creator"}>by {item.creator.nickname}</div>
-            </div>
-          )
-        })}
-        <div ref={loadmoreRef} className={"loadmoreFoot"}></div>
+        {palyList}
+        {placeHolderElement}
+        {loadMoreEle}
       </div>
+
       <SelectCat
         setCatgory={setCat}
         categoryLists={categoryLists}
