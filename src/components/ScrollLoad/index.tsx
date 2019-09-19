@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useMemo } from "react"
+import "./style/index.less"
 
 const prefix = "scrollLoad"
 
 interface Item {
-  img: HTMLImageElement
-  descript: HTMLDivElement
+  img: JSX.Element
+  descript: JSX.Element
 }
 
 interface P {

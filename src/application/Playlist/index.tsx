@@ -1,4 +1,5 @@
 import "./style/index.less"
+import "./style/description.less"
 import React, { useState, useEffect, useMemo } from "react"
 import {
   CategoryInterface,
@@ -7,6 +8,7 @@ import {
   getPlayLists,
 } from "@/api/request"
 import SelectCat from "@/components/SelectCat"
+import ScrollLoad from "@/components/ScrollLoad"
 
 const prefix = "PlayList"
 const MaxPlayList = 6
@@ -57,65 +59,23 @@ const PlayList: React.FunctionComponent<{}> = () => {
       })
   }, [cat, setPlayList])
 
-  //图片大小自适应
-  const [lineLength, setLineLength] = useState<number>(5)
-  const scrollref = React.createRef<HTMLDivElement>()
-  useEffect(() => {
-    const resizeObserver = new window.ResizeObserver(entries => {
-      let ele = entries[0].target as HTMLDivElement
-      let width = ele.clientWidth
-      if (width <= 700) {
-        setLineLength(3)
-      } else if (width <= 875) {
-        setLineLength(4)
-      } else {
-        setLineLength(5)
+  //无限加载的元素
+  const palyList = useMemo(() => {
+    return playList.map(item => {
+      return {
+        img: <img src={item.coverImgUrl} />,
+        descript: (
+          <>
+            <div className={"description-name"}>{item.name}</div>
+            <div className={"description-creator"}>
+              by {item.creator.nickname}
+            </div>
+          </>
+        ),
       }
     })
-
-    resizeObserver.observe(scrollref.current as Element)
-    return () => {
-      resizeObserver.disconnect()
-    }
-  }, [scrollref])
-
-  const placeHolderElement = useMemo<JSX.Element[]>(() => {
-    let count =
-      playList.length % lineLength === 0
-        ? 0
-        : lineLength - (playList.length % lineLength)
-    console.log(playList.length, lineLength, count)
-    const ele: JSX.Element[] = []
-    for (let i = 0; i < count; i++) {
-      ele.push(
-        <div key={"placeHolderElement" + i} className={"song"}>
-          <div className={"img-cover"}></div>
-        </div>
-      )
-    }
-    return ele
-  }, [lineLength, playList.length])
-  const palyList = useMemo(() => {
-    return playList.map((item, index) => {
-      return (
-        <div key={cat + index} className={"song"}>
-          <div className={"img-cover"}>
-            <img src={item.coverImgUrl} />
-          </div>
-          <div>
-            <div className={"name"}>{item.name}</div>
-            <div className={"creator"}>by {item.creator.nickname}</div>
-          </div>
-        </div>
-      )
-    })
-  }, [cat, playList])
-
-  const loadmoreRef = React.useRef<HTMLDivElement>(null)
-  const loadMoreEle = useMemo(() => {
-    return <div ref={loadmoreRef} className={"loadmoreFoot"}></div>
-  }, [])
-
+  }, [playList])
+  //无限加载的加载函数
   const loadMore = useMemo(() => {
     let isLoading = false
     let playListLength = initPlayListsCount
@@ -137,28 +97,6 @@ const PlayList: React.FunctionComponent<{}> = () => {
         })
     }
   }, [cat])
-
-  useEffect(() => {
-    let observer = new IntersectionObserver(
-      entries => {
-        if (entries[0].isIntersecting) {
-          loadMore()
-        }
-      },
-      {
-        root: document.querySelector(".content-wrap"),
-        rootMargin: "10px 100px 0px 0px",
-        threshold: 0.5,
-      }
-    )
-    if (loadmoreRef.current) {
-      observer.observe(loadmoreRef.current)
-    }
-
-    return () => {
-      observer.disconnect()
-    }
-  }, [cat, loadMore, loadmoreRef])
 
   return (
     <>
@@ -185,11 +123,7 @@ const PlayList: React.FunctionComponent<{}> = () => {
           {hotCatLists}
         </ul>
       </nav>
-      <div className={`${prefix}-songlist`} ref={scrollref}>
-        {palyList}
-        {placeHolderElement}
-        {loadMoreEle}
-      </div>
+      <ScrollLoad loadMore={loadMore} items={palyList} flag={cat} />
 
       <SelectCat
         setCatgory={setCat}
