@@ -13,6 +13,7 @@ import { playListMockData } from "./initData"
 
 const prefix = "PlayList"
 const MaxPlayList = 8
+const InitPlayListsCount = 40
 
 const PlayList: React.FunctionComponent<{}> = () => {
   //当前歌单种类和所有歌单种类
@@ -50,12 +51,11 @@ const PlayList: React.FunctionComponent<{}> = () => {
   }
 
   //初始化歌单
-  const initPlayListsCount = 40
   const [playList, setPlayList] = useState<PlayListInterface[]>(
     new Array(10).fill(playListMockData)
   )
   useEffect(() => {
-    getPlayLists(0, initPlayListsCount, cat)
+    getPlayLists(0, InitPlayListsCount, cat)
       .then(res => res.data)
       .then(data => {
         setPlayList(data.playlists)
@@ -78,11 +78,12 @@ const PlayList: React.FunctionComponent<{}> = () => {
       }
     })
   }, [playList])
+
   //无限加载的加载函数
   const loadMore = useMemo(() => {
-    let total = 0
+    let total = InitPlayListsCount + 1
     let isLoading = false
-    let playListLength = initPlayListsCount
+    let playListLength = InitPlayListsCount
     let onceLoadCount = 22
     return () => {
       if (isLoading) {
