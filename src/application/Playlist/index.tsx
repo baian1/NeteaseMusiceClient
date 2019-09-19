@@ -9,6 +9,7 @@ import {
 } from "@/api/request"
 import SelectCat from "@/components/SelectCat"
 import ScrollLoad from "@/components/ScrollLoad"
+import { playListMockData } from "./initData"
 
 const prefix = "PlayList"
 const MaxPlayList = 6
@@ -50,7 +51,9 @@ const PlayList: React.FunctionComponent<{}> = () => {
 
   //初始化歌单
   const initPlayListsCount = 40
-  const [playList, setPlayList] = useState<PlayListInterface[]>([])
+  const [playList, setPlayList] = useState<PlayListInterface[]>(
+    new Array(10).fill(playListMockData)
+  )
   useEffect(() => {
     getPlayLists(0, initPlayListsCount, cat)
       .then(res => res.data)
