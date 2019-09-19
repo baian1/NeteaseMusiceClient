@@ -1,7 +1,7 @@
 import "./style/index.less"
 import "./style/content.less"
 import React from "react"
-import { useNav } from "./hook"
+import { useNav, isNavName } from "./hook"
 
 const prefix = "FindMusic"
 const prefixContent = "content"
@@ -16,8 +16,10 @@ const FindMusic: React.FunctionComponent<{}> = () => {
           onClickCapture={event => {
             const ele = event.target as HTMLElement
             const name = ele.innerText
-            if (name.length < 5) {
+            if (isNavName(name)) {
               changeNav(name)
+            } else {
+              alert("不存在的标签")
             }
           }}>
           {nav.map((item, index) => {
