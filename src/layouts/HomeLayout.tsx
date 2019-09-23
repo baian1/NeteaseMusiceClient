@@ -1,7 +1,8 @@
-import React, { useEffect } from "react"
+import React from "react"
 import "./HomeLayout.less"
 import { renderRoutes, RouteConfigComponentProps } from "react-router-config"
 import Nav from "../components/Nav"
+import Player from "@/application/Player"
 
 const Home: React.FunctionComponent<RouteConfigComponentProps> = props => {
   const { route } = props
@@ -17,7 +18,9 @@ const Home: React.FunctionComponent<RouteConfigComponentProps> = props => {
         <Nav />
         {render}
       </div>
-      <div className={"bottom"}>bottom</div>
+      <div className={"bottom"}>
+        <Player />
+      </div>
     </div>
   )
 }
