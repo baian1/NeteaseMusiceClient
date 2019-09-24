@@ -1,6 +1,11 @@
-//reducers.js
-import { combineReducers } from "redux-immutable"
+import { combineReducers } from "redux"
+import { reducer } from "src/application/Player/store"
+import { getStoreTypeFromReducers } from "@/utils/type"
 
-export default combineReducers({
-  // 之后开发具体功能模块的时候添加reducer
-})
+const mergeReducers = {
+  palyer: reducer,
+}
+
+export type Store = getStoreTypeFromReducers<typeof mergeReducers>
+
+export default combineReducers(mergeReducers)
