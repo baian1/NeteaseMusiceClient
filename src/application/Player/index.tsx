@@ -1,15 +1,60 @@
-import React, { useRef, useEffect, useState } from "react"
+import React, { useRef, useEffect, useState, useMemo } from "react"
 import { Howl } from "howler"
 import "./style/index.less"
+import { useSelectorTs, useDispatchTs } from "@/stroe/hook"
+import { getPlayListsDetail, Play } from "@/api/request"
+import { useDispatch } from "react-redux"
+import { addSong } from "./store/actionCreators"
+import SongListModel from "./SongListModel"
+import { actionCreators, asyncActionCreators } from "./store"
 
 const prefix = "Player"
 
+function useDispatchAction() {
+  const dispatch = useDispatchTs()
+
+  const action = useMemo(() => {
+    return {
+      setIndex: (index: number) => dispatch(actionCreators.setIndex({ index })),
+      setSongSrc: (id: number) =>
+        dispatch(asyncActionCreators.freshSongSrc(id)),
+      removeSong: (id: number | number[]) =>
+        dispatch(actionCreators.deleteSong({ id })),
+    }
+  }, [dispatch])
+  return action
+}
+
 const Player: React.FunctionComponent<{}> = () => {
-  let sound = new Howl({
-    src: [
-      "http://m7.music.126.net/20190921175325/76e83df815889925a86ddce83e8d52f9/ymusic/b1c4/b5de/74d0/9158ae4873e10b743790320db9ef9b29.mp3",
-    ],
+  const State = useSelectorTs(state => {
+    return {
+      ...state.palyer,
+    }
   })
+  const actions = useDispatchAction()
+
+  const songs = useMemo(() => {
+    let songs: Play[] = []
+    let keys = Reflect.ownKeys(State.songList) as number[]
+    for (let i of keys) {
+      let song = State.songList[i]
+      if (song === undefined) {
+        continue
+      }
+      songs.push(song as Play)
+    }
+
+    return songs
+  }, [State.songList])
+
+  const dispatch = useDispatch()
+
+  useEffect(() => {
+    getPlayListsDetail(347230)
+      .then(res => res.data)
+      .then(data => dispatch(addSong(data.songs)))
+    return () => {}
+  }, [])
 
   const [time, setTime] = useState({
     current: 0,
@@ -122,8 +167,11 @@ const Player: React.FunctionComponent<{}> = () => {
         </div>
         <div className={"liebiao"}>
           <i className={"iconfont icon-liebiao"}></i>
-          <div className={"song-count"}>12</div>
+          <div className={"song-count"}>
+            {Reflect.ownKeys(State.songList).length}
+          </div>
         </div>
+        <SongListModel songs={songs} currentIndex={State.currentIndex} />
       </div>
     </div>
   )

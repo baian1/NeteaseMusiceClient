@@ -35,6 +35,9 @@ const Slider: React.FunctionComponent<P> = props => {
         //   nextEl: ".swiper-button-next",
         //   prevEl: ".swiper-button-prev",
         // },
+        pagination: {
+          el: ".swiper-pagination",
+        },
       })
       setSliderSwiper(sliderSwiper)
     }
@@ -56,6 +59,7 @@ const Slider: React.FunctionComponent<P> = props => {
           )
         })}
       </div>
+      <div className="swiper-pagination"></div>
       {/* <div className="swiper-button-next"></div>
       <div className="swiper-button-prev"></div> */}
     </div>

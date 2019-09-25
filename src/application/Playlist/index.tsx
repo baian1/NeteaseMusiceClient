@@ -5,7 +5,7 @@ import {
   CategoryInterface,
   getCategorylists,
   PlayListInterface,
-  getPlayLists,
+  getPlayListsFromCat,
 } from "@/api/request"
 import SelectCat from "@/components/SelectCat"
 import ScrollLoad from "@/components/ScrollLoad"
@@ -55,7 +55,7 @@ const PlayList: React.FunctionComponent<{}> = () => {
     new Array(10).fill(playListMockData)
   )
   useEffect(() => {
-    getPlayLists(0, InitPlayListsCount, cat)
+    getPlayListsFromCat(0, InitPlayListsCount, cat)
       .then(res => res.data)
       .then(data => {
         setPlayList(data.playlists)
@@ -93,7 +93,7 @@ const PlayList: React.FunctionComponent<{}> = () => {
         alert("没有更多歌单了")
         return
       }
-      getPlayLists(playListLength, onceLoadCount, cat)
+      getPlayListsFromCat(playListLength, onceLoadCount, cat)
         .then(res => res.data)
         .then(data => {
           total = data.total

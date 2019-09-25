@@ -4,6 +4,7 @@ import { renderRoutes, RouteConfigComponentProps } from "react-router-config"
 import Nav from "../components/Nav"
 import Player from "@/application/Player"
 
+const prefix = "homeLayout"
 const Home: React.FunctionComponent<RouteConfigComponentProps> = props => {
   const { route } = props
   let render = null
@@ -12,7 +13,7 @@ const Home: React.FunctionComponent<RouteConfigComponentProps> = props => {
   }
 
   return (
-    <div className={"wrap"}>
+    <div className={`${prefix}-wrap`}>
       <header className={"header"}>网易云</header>
       <div className={"contain"}>
         <Nav />
