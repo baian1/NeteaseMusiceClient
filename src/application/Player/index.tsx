@@ -2,11 +2,13 @@ import React, { useRef, useEffect, useState, useMemo } from "react"
 import { Howl } from "howler"
 import "./style/index.less"
 import { useSelectorTs, useDispatchTs } from "@/stroe/hook"
-import { getPlayListsDetail, Play } from "@/api/request"
+import { getPlayListsDetail, Play, getSongDetail } from "@/api/request"
 import { useDispatch } from "react-redux"
 import { addSong } from "./store/actionCreators"
 import SongListModel from "./SongListModel"
 import { actionCreators, asyncActionCreators } from "./store"
+import { getSongSrc } from "@/api/music"
+import { formatTime } from "@/utils/time"
 
 const prefix = "Player"
 
@@ -15,11 +17,15 @@ function useDispatchAction() {
 
   const action = useMemo(() => {
     return {
-      setIndex: (index: number) => dispatch(actionCreators.setIndex({ index })),
+      setIndex: (index: number) =>
+        dispatch(asyncActionCreators.freshSongSrc(index)),
       setSongSrc: (id: number) =>
         dispatch(asyncActionCreators.freshSongSrc(id)),
-      removeSong: (id: number | number[]) =>
-        dispatch(actionCreators.deleteSong({ id })),
+      removeSongByIndex: (index: number) =>
+        dispatch(actionCreators.deleteSongByIndex({ index })),
+      setTimer: (current: number, duration: number) => {
+        dispatch(actionCreators.setTimer({ current, duration }))
+      },
     }
   }, [dispatch])
   return action
@@ -33,19 +39,52 @@ const Player: React.FunctionComponent<{}> = () => {
   })
   const actions = useDispatchAction()
 
-  const songs = useMemo(() => {
-    let songs: Play[] = []
-    let keys = Reflect.ownKeys(State.songList) as number[]
-    for (let i of keys) {
-      let song = State.songList[i]
-      if (song === undefined) {
-        continue
-      }
-      songs.push(song as Play)
-    }
+  const [isSongListModelShow, setSongListModelShow] = useState(false)
 
-    return songs
-  }, [State.songList])
+  const sound = useRef<Howl>(
+    new Howl({
+      src: [""],
+      html5: true,
+    })
+  )
+
+  const soundAction = useMemo(() => {
+    return {
+      play: () => {
+        sound.current.play()
+      },
+      pause: () => {
+        sound.current.pause()
+      },
+      seek: (per: number) => {
+        sound.current.seek(per)
+      },
+    }
+  }, [sound])
+
+  useEffect(() => {
+    sound.current = new Howl({
+      src: [State.currentSongSrc],
+      html5: true,
+    })
+    if (!sound.current) {
+      return
+    }
+    const nowSound = sound.current
+    nowSound.once("load", () => {
+      nowSound.play()
+      actions.setTimer(0, nowSound.duration())
+    })
+    nowSound.on("seek", () => {
+      console.log("seek")
+      actions.setTimer(nowSound.seek() as number, nowSound.duration())
+    })
+    return () => {
+      if (sound.current) {
+        sound.current.unload()
+      }
+    }
+  }, [State.currentSongSrc, actions])
 
   const dispatch = useDispatch()
 
@@ -54,12 +93,7 @@ const Player: React.FunctionComponent<{}> = () => {
       .then(res => res.data)
       .then(data => dispatch(addSong(data.songs)))
     return () => {}
-  }, [])
-
-  const [time, setTime] = useState({
-    current: 0,
-    duration: 0,
-  })
+  }, [dispatch])
 
   const pointRef = useRef<HTMLDivElement>(null)
   const mouseRangeRef = useRef<HTMLDivElement>(null)
@@ -128,9 +162,21 @@ const Player: React.FunctionComponent<{}> = () => {
           <div className={"prev-next"}>
             <i className={"iconfont icon-shangyiqu101"}></i>
           </div>
-          <div className={"pause-play"}>
-            <i className={"iconfont icon-stop"}></i>
-            {/* <i className={"iconfont icon-zanting1"}></i> */}
+          <div
+            className={"pause-play"}
+            onClick={() => {
+              console.log(sound.current.playing())
+              if (sound.current.playing()) {
+                soundAction.pause()
+              } else {
+                soundAction.play()
+              }
+            }}>
+            {sound.current.playing() ? (
+              <i className={"iconfont icon-stop"}></i>
+            ) : (
+              <i className={"iconfont icon-zanting1"}></i>
+            )}
           </div>
           <div className={"prev-next"}>
             <i className={"iconfont icon-xiayiqu101"}></i>
@@ -144,7 +190,7 @@ const Player: React.FunctionComponent<{}> = () => {
             乃测 <div className={`author`}>- people</div>
           </div>
           <div className={`time`}>
-            {time.current}/{time.duration}
+            {formatTime(State.time.current)}/{formatTime(State.time.duration)}
           </div>
         </div>
         <div className={`process`}>
@@ -165,16 +211,28 @@ const Player: React.FunctionComponent<{}> = () => {
         <div className={"volume"}>
           <i className={"iconfont icon-yinliang"}></i>
         </div>
-        <div className={"liebiao"}>
+        <div
+          className={"liebiao"}
+          onClick={() => {
+            setSongListModelShow(true)
+          }}>
           <i className={"iconfont icon-liebiao"}></i>
           <div className={"song-count"}>
             {Reflect.ownKeys(State.songList).length}
           </div>
         </div>
-        <SongListModel songs={songs} currentIndex={State.currentIndex} />
+        {isSongListModelShow ? (
+          <SongListModel
+            songs={State.songList as Play[]}
+            currentIndex={State.currentIndex}
+            setIndex={actions.setIndex}
+            removeSongByIndex={actions.removeSongByIndex}
+            changeStatus={setSongListModelShow}
+          />
+        ) : null}
       </div>
     </div>
   )
 }
 
-export default Player
+export default React.memo(Player)

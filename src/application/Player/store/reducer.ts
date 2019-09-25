@@ -14,9 +14,7 @@ interface Timer {
 
 export interface Data {
   time: Timer
-  songList: {
-    [index: number]: Play
-  }
+  songList: Play[]
   currentIndex: number
   mode: playMode
   currentSongSrc: string
@@ -27,7 +25,7 @@ const defaultState: Data = {
     current: 0,
     duration: 0,
   },
-  songList: {},
+  songList: [],
   currentIndex: -1,
   currentSongSrc: "",
   mode: playMode.sequence,
@@ -37,10 +35,7 @@ export default produce((dragft: Data = defaultState, action: Actions) => {
   switch (action.type) {
     case actionTypes.ADD_SONG: {
       let data = action.data
-      for (let i of data) {
-        let id = i.id
-        dragft.songList[id] = i
-      }
+      dragft.songList = data
       break
     }
     case actionTypes.DELETE_SONG: {
@@ -48,6 +43,10 @@ export default produce((dragft: Data = defaultState, action: Actions) => {
       data.forEach(id => {
         delete dragft.songList[id]
       })
+      break
+    }
+    case actionTypes.DELETE_SONG_BY_INDEX: {
+      dragft.songList.splice(action.data.index, 1)
       break
     }
     case actionTypes.SET_INDEX: {
@@ -58,6 +57,11 @@ export default produce((dragft: Data = defaultState, action: Actions) => {
     case actionTypes.SET_SONG_SRC: {
       const { src } = action.data
       dragft.currentSongSrc = src
+      break
+    }
+    case actionTypes.SET_TIMER: {
+      dragft.time.current = action.data.current
+      dragft.time.duration = action.data.duration
       break
     }
     default: {

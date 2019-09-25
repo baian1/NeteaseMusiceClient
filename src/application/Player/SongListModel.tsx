@@ -6,10 +6,19 @@ import "./style/SongListModel.less"
 interface P {
   songs: Play[]
   currentIndex: number
+  setIndex(index: number): void
+  removeSongByIndex(index: number): void
+  changeStatus(status: boolean): void
 }
 
 const prefix = "SongListModel"
-const SongListModel: React.FC<P> = ({ songs, currentIndex }) => {
+const SongListModel: React.FC<P> = ({
+  songs,
+  currentIndex,
+  setIndex,
+  removeSongByIndex,
+  changeStatus,
+}) => {
   //选中歌曲
   const [selectedIndex, setSelectIndex] = useState(-1)
   const changeSelectIndex = useMemo(() => {
@@ -24,7 +33,6 @@ const SongListModel: React.FC<P> = ({ songs, currentIndex }) => {
       }
       if (data) {
         setSelectIndex(parseInt(data))
-        console.log(data)
       }
     }
   }, [])
@@ -60,7 +68,11 @@ const SongListModel: React.FC<P> = ({ songs, currentIndex }) => {
             <div className={"name"}>
               <div className={"text"}>{song.name}</div>
               {selectedIndex === i ? (
-                <div className={"taber"}>
+                <div
+                  className={"taber"}
+                  onClick={() => {
+                    setIndex(i)
+                  }}>
                   <i className={`iconfont icon-bofang`}></i>
                 </div>
               ) : null}
@@ -69,7 +81,10 @@ const SongListModel: React.FC<P> = ({ songs, currentIndex }) => {
             <div className={"duration-time"}>
               {formatTime(Math.floor(song.dt / 1000))}
               {selectedIndex === i ? (
-                <div>
+                <div
+                  onClick={() => {
+                    removeSongByIndex(i)
+                  }}>
                   <i className={`iconfont icon-message-close`}></i>
                 </div>
               ) : null}
@@ -88,13 +103,33 @@ const SongListModel: React.FC<P> = ({ songs, currentIndex }) => {
         {resEles}
       </div>
     )
-  }, [currentIndex, scrollTop, selectedIndex, songs])
+  }, [
+    currentIndex,
+    removeSongByIndex,
+    scrollTop,
+    selectedIndex,
+    setIndex,
+    songs,
+  ])
 
   return (
-    <div className={`${prefix}-backgroud`}>
-      <div className={`${prefix}-wrap`}>
+    <div
+      className={`${prefix}-backgroud`}
+      onClick={() => {
+        changeStatus(false)
+      }}>
+      <div
+        className={`${prefix}-wrap`}
+        onClick={event => {
+          event.stopPropagation()
+        }}>
         <div className={"header"}>
-          <div>播放列表</div> <i className={`iconfont icon-message-close`}></i>
+          <div>播放列表</div>{" "}
+          <i
+            className={`iconfont icon-message-close`}
+            onClick={() => {
+              changeStatus(false)
+            }}></i>
         </div>
         <div
           className={"list-body"}
