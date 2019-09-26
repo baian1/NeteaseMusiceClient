@@ -1,6 +1,6 @@
 import React from "react"
 import { formatTime } from "@/utils/time"
-
+import "./style/Row.less"
 interface P {
   isCurrentIndex: boolean
   isSelectedIndex: boolean

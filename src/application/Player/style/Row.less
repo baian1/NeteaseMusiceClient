@@ -1,0 +1,96 @@
+@prefix: Row;
+
+.@{prefix} {
+  [click-animation="true"] {
+    .click(0.98);
+  }
+  .odd {
+    background-color: rgb(248, 248, 245);
+  }
+  &-row {
+    &:hover {
+      background-color: rgba(243, 243, 243, 0.8);
+    }
+    > .xiaosanjiao {
+      position: absolute;
+      left: 10px;
+      border: 8px solid red;
+      border-bottom-color: transparent;
+      border-top-color: transparent;
+      border-right-color: transparent;
+      transform: rotateX(50deg);
+    }
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    height: 50px;
+    flex-shrink: 0;
+    > div {
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+    > .author,
+    > .duration-time {
+      color: rgb(180, 180, 180);
+      line-height: 16px;
+    }
+    > .author {
+      width: 28%;
+      font-size: 13px;
+    }
+    > .duration-time {
+      width: 15%;
+      font-size: 13px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      position: relative;
+      > div {
+        .click2(0.9);
+        margin-left: 10px;
+        border: 1px solid red;
+        border-radius: 10px;
+      }
+    }
+    > .name {
+      flex: 1;
+      margin-left: 30px;
+      font-size: 15px;
+      line-height: 20px;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      > .text {
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      > div.taber {
+        i {
+          font-size: 20px;
+        }
+        .click2();
+        margin: 0 10px 0 10px;
+      }
+    }
+  }
+}
+
+.click(@size:0.98) {
+  transition: transform 0.3s;
+  &:active {
+    transform: scale(@size);
+    background-color: rgb(196, 196, 196) !important;
+  }
+}
+
+.click2(@size:0.9) {
+  transition: transform 0.3s;
+  &:active {
+    transform: scale(@size) translateZ(0);
+  }
+}
