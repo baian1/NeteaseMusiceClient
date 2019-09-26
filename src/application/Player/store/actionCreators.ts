@@ -5,6 +5,7 @@ import {
   SET_SONG_SRC,
   DELETE_SONG_BY_INDEX,
   SET_TIMER,
+  CHANGE_SONG_PLAYING,
 } from "./constants"
 import { Play } from "@/api/request"
 
@@ -47,11 +48,11 @@ export const setIndex = (data: { index: number }) =>
     data,
   } as const)
 
-export const setSong = (id: number, src: string) =>
+export const setSong = (song: Play, src: string) =>
   ({
     type: SET_SONG_SRC,
     data: {
-      id,
+      song,
       src,
     },
   } as const)
@@ -68,5 +69,13 @@ export const setTimer = ({
     data: {
       current,
       duration,
+    },
+  } as const)
+
+export const changeSongPlaying = (playing?: boolean) =>
+  ({
+    type: CHANGE_SONG_PLAYING,
+    data: {
+      playing,
     },
   } as const)

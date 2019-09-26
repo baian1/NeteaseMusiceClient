@@ -13,21 +13,32 @@ interface Timer {
 }
 
 export interface Data {
-  time: Timer
   songList: Play[]
   currentIndex: number
   mode: playMode
-  currentSongSrc: string
+  songStatus: {
+    name: string
+    author: string
+    src: string
+    playing: boolean
+    picUrl: string
+    volume: number
+  } & Timer
 }
 
 const defaultState: Data = {
-  time: {
+  songList: [],
+  songStatus: {
     current: 0,
     duration: 0,
+    name: "",
+    author: "",
+    src: "",
+    playing: false,
+    picUrl: "",
+    volume: 0.5,
   },
-  songList: [],
   currentIndex: -1,
-  currentSongSrc: "",
   mode: playMode.sequence,
 }
 
@@ -50,18 +61,29 @@ export default produce((dragft: Data = defaultState, action: Actions) => {
       break
     }
     case actionTypes.SET_INDEX: {
-      let data = action.data
-      dragft.currentIndex = data.index
+      let { index } = action.data
+      dragft.currentIndex = index
       break
     }
     case actionTypes.SET_SONG_SRC: {
-      const { src } = action.data
-      dragft.currentSongSrc = src
+      const { song, src } = action.data
+      dragft.songStatus.src = src
+      dragft.songStatus.picUrl = song.al.picUrl
+      dragft.songStatus.name = song.name
+      dragft.songStatus.author = song.ar[0].name
       break
     }
     case actionTypes.SET_TIMER: {
-      dragft.time.current = action.data.current
-      dragft.time.duration = action.data.duration
+      dragft.songStatus.current = action.data.current
+      dragft.songStatus.duration = action.data.duration
+      break
+    }
+    case actionTypes.CHANGE_SONG_PLAYING: {
+      if (action.data.playing) {
+        dragft.songStatus.playing = action.data.playing
+      } else {
+        dragft.songStatus.playing = !dragft.songStatus.playing
+      }
       break
     }
     default: {

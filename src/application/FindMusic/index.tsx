@@ -18,9 +18,8 @@ const FindMusic: React.FunctionComponent<{}> = () => {
             const name = ele.innerText
             if (isNavName(name)) {
               changeNav(name)
-            } else {
-              alert("不存在的标签")
             }
+            return
           }}>
           {nav.map((item, index) => {
             return (
