@@ -33,7 +33,11 @@ export function usePlayer(
         )
       },
       seek: (per: number) => {
-        sound.current.seek(per)
+        let nowTime = sound.current.seek()
+        let goToTime = per * sound.current.duration(id)
+        if (Math.abs(nowTime - goToTime) > 3) {
+          sound.current.seek(goToTime)
+        }
       },
       volume: (tt: number) => {
         sound.current.volume(tt, id)
