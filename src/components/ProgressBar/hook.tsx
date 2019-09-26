@@ -13,14 +13,21 @@ export function useProcess({
   mouseUp: handle
   mousedown: handle
 }) {
-  const [isActive, setActive] = useState(false)
-
+  //需要用到的dom元素
   const pointRef = useRef<HTMLDivElement>(null)
   const progressCurrentRef = useRef<HTMLDivElement>(null)
   const progressWrapRef = useRef<HTMLDivElement>(null)
 
+  //进度条的活动状态
+  const [isActive, setActive] = useState(false)
+
+  /**
+   * 确定进度条位置和长度
+   * 用来计算进度百分比
+   */
   const max = useRef(0)
   const left = useRef(0)
+
   const setMaxAndLeft = useMemo(
     () => () => {
       const processCurrentEle = progressCurrentRef.current
@@ -32,6 +39,16 @@ export function useProcess({
     },
     []
   )
+
+  useEffect(() => {
+    window.addEventListener("resize", setMaxAndLeft)
+    return () => {
+      window.removeEventListener("resize", setMaxAndLeft)
+    }
+  }, [setMaxAndLeft])
+  useEffect(() => {
+    setMaxAndLeft()
+  }, [setMaxAndLeft])
 
   /**
    * 通过百分比来设置进度条
@@ -50,7 +67,7 @@ export function useProcess({
   /**
    * 获得进度百分比
    */
-  const getProgress = useMemo(
+  const transformEventXToProgress = useMemo(
     () =>
       function getX(x: number) {
         let offsetX = (x - left.current) / max.current
@@ -64,27 +81,19 @@ export function useProcess({
     []
   )
 
+  //点击进度条
   useEffect(() => {
     if (!progressWrapRef.current) {
       return
     }
     let ele = progressWrapRef.current
     ele.addEventListener("mousedown", event => {
-      let offsetX = getProgress(event.x)
+      let offsetX = transformEventXToProgress(event.x)
       setProgress(offsetX)
+      onMousedown(offsetX)
       setActive(true)
     })
-  }, [getProgress, setProgress])
-
-  useEffect(() => {
-    window.addEventListener("resize", setMaxAndLeft)
-    return () => {
-      window.removeEventListener("resize", setMaxAndLeft)
-    }
-  }, [setMaxAndLeft])
-  useEffect(() => {
-    setMaxAndLeft()
-  }, [setMaxAndLeft])
+  }, [transformEventXToProgress, onMousedown, setProgress])
 
   //滑块的拖动状态
   useEffect(() => {
@@ -102,8 +111,10 @@ export function useProcess({
           break
         }
         case "mouseup": {
+          if (isActive) {
+            onMouseUp(transformEventXToProgress(event.x))
+          }
           setActive(false)
-          onMouseUp(getProgress(event.x))
           break
         }
       }
@@ -114,13 +125,13 @@ export function useProcess({
       pointEle.removeEventListener("mousedown", changeAvticeStatus)
       document.removeEventListener("mouseup", changeAvticeStatus)
     }
-  }, [getProgress, onMouseUp, setMaxAndLeft])
+  }, [transformEventXToProgress, isActive, onMouseUp, setMaxAndLeft])
 
   //滑块拖动进行时
   useEffect(() => {
     const mouseRangeEle = document
     const mouseMove = (event: MouseEvent) => {
-      let offsetX = getProgress(event.x)
+      let offsetX = transformEventXToProgress(event.x)
       if (!isActive) {
         return
       }
@@ -132,7 +143,7 @@ export function useProcess({
     return () => {
       mouseRangeEle.removeEventListener("mousemove", mouseMove)
     }
-  }, [getProgress, isActive, onMouseMove, setProgress])
+  }, [transformEventXToProgress, isActive, onMouseMove, setProgress])
 
   return {
     pointRef,
