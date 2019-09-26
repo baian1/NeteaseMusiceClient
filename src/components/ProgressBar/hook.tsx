@@ -87,12 +87,16 @@ export function useProcess({
       return
     }
     let ele = progressWrapRef.current
-    ele.addEventListener("mousedown", event => {
-      let offsetX = transformEventXToProgress(event.x)
+    function handle(event: MouseEvent) {
+      const offsetX = transformEventXToProgress(event.x)
       setProgress(offsetX)
       onMousedown(offsetX)
       setActive(true)
-    })
+    }
+    ele.addEventListener("mousedown", handle)
+    return () => {
+      ele.removeEventListener("mousedown", handle)
+    }
   }, [transformEventXToProgress, onMousedown, setProgress])
 
   //滑块的拖动状态
