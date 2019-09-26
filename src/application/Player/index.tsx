@@ -7,9 +7,9 @@ import { addSong } from "./store/actionCreators"
 import SongListModel from "./SongListModel"
 import { actionCreators, asyncActionCreators } from "./store"
 import { formatTime } from "@/utils/time"
-import { useProcess } from "./processHook"
 import { usePlayer } from "./playerHook"
 import VolumeModel from "./VolumeModel"
+import ProgressBar from "@/components/ProgressBar"
 
 const prefix = "Player"
 
@@ -56,10 +56,8 @@ const Player: React.FunctionComponent<{}> = () => {
     return () => {}
   }, [dispatch])
 
-  const process = useProcess()
-
   return (
-    <div className={`${prefix}-wrap`} ref={process.mouseRangeRef}>
+    <div className={`${prefix}-wrap`}>
       <div className={`${prefix}-left`}>
         <div className={`cover`}>
           <img src={State.songStatus.picUrl} />
@@ -114,13 +112,7 @@ const Player: React.FunctionComponent<{}> = () => {
             {formatTime(State.songStatus.duration)}
           </div>
         </div>
-        <div className={`process`}>
-          <div className={`current-time`} ref={process.processCurrentRef}>
-            <div className={`point-slider`} ref={process.pointRef}>
-              <div></div>
-            </div>
-          </div>
-        </div>
+        <ProgressBar />
       </div>
 
       <div className={`${prefix}-right`}>
