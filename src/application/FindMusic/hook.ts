@@ -1,4 +1,4 @@
-import { useState, useRef } from "react"
+import { useState, useRef, useMemo, useEffect } from "react"
 import PlayList from "../Playlist"
 import Personalized from "../Personalized"
 import Blank from "@/components/Blank"
@@ -54,19 +54,31 @@ export function useNav() {
   const content = useRef<React.FunctionComponent>(Personalized)
   const isActive = useRef(navs[0])
 
-  const setActive = function(name: navName) {
-    setNav((nav): NavType[] => {
-      isActive.current.active = false
-      isActive.current = nav[navMap[name]]
-      isActive.current.active = true
+  const setActive = useMemo(
+    () =>
+      function(name: navName) {
+        setNav((nav): NavType[] => {
+          isActive.current.active = false
+          isActive.current = nav[navMap[name]]
+          isActive.current.active = true
 
-      content.current = isActive.current.component
-        ? isActive.current.component
-        : Blank
+          content.current = isActive.current.component
+            ? isActive.current.component
+            : Blank
 
-      return [...nav]
-    })
-  }
+          return [...nav]
+        })
+      },
+    []
+  )
+  useEffect(() => {
+    return () => {
+      for (let i of navs) {
+        i.active = false
+      }
+      navs[0].active = true
+    }
+  }, [])
 
   return [nav, content.current, setActive] as const
 }
