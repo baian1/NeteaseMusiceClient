@@ -16,6 +16,16 @@ export function usePlayer(
   }, [])
   const sound = useRef<Howl>(initPlay)
 
+  const step = useMemo(() => {
+    function step() {
+      setTimer(sound.current.seek(), sound.current.duration())
+      if (sound.current.playing()) {
+        requestAnimationFrame(step)
+      }
+    }
+    return step
+  }, [setTimer])
+
   const soundAction = useMemo(() => {
     return {
       play: () => {
@@ -62,15 +72,18 @@ export function usePlayer(
         changePlaying(true)
       })
     })
+    nowSound.on("play", () => {
+      step()
+    })
     nowSound.on("seek", () => {
-      setTimer(nowSound.seek() as number, nowSound.duration())
+      step()
     })
     return () => {
       if (sound.current) {
         sound.current.unload()
       }
     }
-  }, [src, setTimer, changePlaying])
+  }, [src, setTimer, changePlaying, step])
 
   return [soundAction, sound.current] as const
 }
