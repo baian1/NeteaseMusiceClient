@@ -24,6 +24,13 @@ export function useProgress({
   /**
    * 确定进度条位置和长度
    * 用来计算进度百分比
+   * 触发情况(待改进):
+   * 1. 首次加载的时候(删除)
+   * 2. 在点击进度条和point时
+   * 3. resize窗口的时候(删除)
+   *
+   * 理由：
+   * 只有在我们拖动的时候才需要这个数据进行位置计算，获得进度条百分比，以此来控制进度条
    */
   const max = useRef(0)
   const left = useRef(0)
@@ -40,12 +47,6 @@ export function useProgress({
     []
   )
 
-  useEffect(() => {
-    window.addEventListener("resize", setMaxAndLeft)
-    return () => {
-      window.removeEventListener("resize", setMaxAndLeft)
-    }
-  }, [setMaxAndLeft])
   useEffect(() => {
     setMaxAndLeft()
   }, [setMaxAndLeft])
