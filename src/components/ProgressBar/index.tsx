@@ -1,24 +1,29 @@
 import React from "react"
-import { useProcess as useProgress } from "./hook"
+import { useProgress } from "./hook"
 import "./style/index.less"
 
 interface P {
-  mousedown?: (progress: number) => void
+  mouseDown?: (progress: number) => void
   mouseUp?: (progress: number) => void
   mouseMove?: (progress: number) => void
+  controlerRef?: React.MutableRefObject<(offset: number) => void>
 }
 
 const prefix = "ProgressBar"
 const ProgressBar: React.FC<P> = ({
   mouseMove = () => {},
   mouseUp = () => {},
-  mousedown = () => {},
+  mouseDown = () => {},
+  controlerRef,
 }) => {
   const progress = useProgress({
     mouseMove,
     mouseUp,
-    mousedown,
+    mouseDown,
   })
+  if (controlerRef) {
+    controlerRef.current = progress.setProgressInidle
+  }
   return (
     <div className={`${prefix}-wrap`} ref={progress.progressWrapRef}>
       <div className={`process`}>

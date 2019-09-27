@@ -7,5 +7,76 @@
     left: 0;
     width: 100vw;
     height: 100vh;
+
+    &-hidden {
+      display: none;
+    }
+  }
+  &-wrap {
+    position: absolute;
+    right: 10px;
+    bottom: 65px;
+    width: 300px;
+    height: 50px;
+    background: white;
+    border: 1px solid rgb(224, 224, 224);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    &::after {
+      width: 0;
+      height: 0;
+      position: absolute;
+      right: 95px;
+      bottom: -23px;
+      content: "";
+      border: 12px solid rgb(255, 255, 255);
+      border-bottom-color: transparent;
+      border-left-color: transparent;
+      border-right-color: transparent;
+    }
+    &::before {
+      width: 0;
+      height: 0;
+      position: absolute;
+      right: 95px;
+      bottom: -25px;
+      content: "";
+      border: 12px solid rgb(224, 224, 224);
+      border-bottom-color: transparent;
+      border-left-color: transparent;
+      border-right-color: transparent;
+    }
+
+    > i {
+      font-size: 20px;
+      margin: 0 5px 0 10px;
+    }
+    > .progress {
+      margin-left: 10px;
+      margin-right: 20px;
+      flex: 1;
+    }
+    &-jinru {
+      animation: jinru 0.6s forwards;
+      // animation-name: jinru;
+      // animation-delay: 2s;
+      // animation-fill-mode: forwards;
+    }
+    &-tuichu {
+      display: none;
+    }
+  }
+}
+
+@keyframes jinru {
+  from {
+    display: flex;
+    bottom: 55px;
+    opacity: 0;
+  }
+  to {
+    bottom: 65px;
+    opacity: 1;
   }
 }

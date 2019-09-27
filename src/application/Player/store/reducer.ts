@@ -86,6 +86,11 @@ export default produce((dragft: Data = defaultState, action: Actions) => {
       }
       break
     }
+    case actionTypes.SET_VOLUME: {
+      const volume = action.data.volume
+      dragft.songStatus.volume = volume
+      break
+    }
     default: {
       return dragft
     }

@@ -49,7 +49,7 @@ const Row: React.FC<P> = ({
           <div className={"duration-time"}>
             {formatTime(time / 1000)}
             {isSelectedIndex ? (
-              <div data-action="deleteByIndex" data-idnex={i}>
+              <div data-action="deleteByIndex" data-index={i}>
                 <i className={`iconfont icon-message-close`}></i>
               </div>
             ) : null}

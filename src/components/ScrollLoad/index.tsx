@@ -31,8 +31,10 @@ const ScrollLoad: React.FunctionComponent<P> = ({ items, flag, loadMore }) => {
         setLineLength(5)
       }
     })
-
-    resizeObserver.observe(scrollref.current as Element)
+    if (!scrollref.current) {
+      throw new Error("滚动长列表不存在")
+    }
+    resizeObserver.observe(scrollref.current)
     return () => {
       resizeObserver.disconnect()
     }

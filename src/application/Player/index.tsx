@@ -1,35 +1,17 @@
-import React, { useEffect, useState, useMemo } from "react"
+import React, { useEffect, useState, useMemo, useRef } from "react"
 import "./style/index.less"
-import { useSelectorTs, useDispatchTs } from "@/stroe/hook"
+import { useSelectorTs } from "@/stroe/hook"
 import { getPlayListsDetail, Play } from "@/api/request"
 import { useDispatch } from "react-redux"
 import { addSong } from "./store/actionCreators"
 import SongListModel from "./SongListModel"
-import { actionCreators, asyncActionCreators } from "./store"
 import { formatTime } from "@/utils/time"
 import { usePlayer } from "./playerHook"
 import VolumeModel from "./VolumeModel"
 import ProgressBar from "@/components/ProgressBar"
+import { useForceUpdate, useDispatchAction, useProgress } from "./hook"
 
 const prefix = "Player"
-
-function useDispatchAction() {
-  const dispatch = useDispatchTs()
-
-  const action = useMemo(() => {
-    return {
-      setIndex: (index: number) =>
-        dispatch(asyncActionCreators.freshSongSrc(index)),
-      setTimer: (current: number, duration: number) => {
-        dispatch(actionCreators.setTimer({ current, duration }))
-      },
-      changePlaying: (playing?: boolean) => {
-        dispatch(actionCreators.changeSongPlaying(playing))
-      },
-    }
-  }, [dispatch])
-  return action
-}
 
 const Player: React.FunctionComponent<{}> = () => {
   const State = useSelectorTs(state => {
@@ -37,15 +19,37 @@ const Player: React.FunctionComponent<{}> = () => {
       ...state.palyer,
     }
   })
+  const forceUpdate = useForceUpdate()
   const actions = useDispatchAction()
 
   const [isSongListModelShow, setSongListModelShow] = useState(false)
+  const [isVolumeModelShow, setVolumeModelShow] = useState(false)
 
-  const [playerAction, sound] = usePlayer(
+  //播放器对象
+  const [playerAction, sound, listen] = usePlayer(
     State.songStatus.src,
-    actions.setTimer,
-    actions.changePlaying
+    actions.changePlaying,
+    actions.setIndex
   )
+  const progress = useProgress(
+    State.songStatus.duration,
+    forceUpdate,
+    playerAction.seek
+  )
+  //进度条对外暴露控制接口
+  const controllerProgressRef = useRef<(offset: number) => void>(() => {})
+
+  useEffect(() => {
+    const un1 = listen(actions.setTimer)
+    const un2 = listen((current, duration) => {
+      if (controllerProgressRef.current) {
+        controllerProgressRef.current(current / duration)
+      }
+    })
+    return () => {
+      un1(), un2()
+    }
+  }, [actions.setTimer, listen])
 
   //测试数据加载
   const dispatch = useDispatch()
@@ -108,11 +112,18 @@ const Player: React.FunctionComponent<{}> = () => {
             )}
           </div>
           <div className={`time`}>
-            {formatTime(State.songStatus.current)}/
-            {formatTime(State.songStatus.duration)}
+            {progress.isActive.current
+              ? formatTime(progress.time)
+              : formatTime(State.songStatus.current)}
+            /{formatTime(State.songStatus.duration)}
           </div>
         </div>
-        <ProgressBar />
+        <ProgressBar
+          mouseDown={progress.actions.mouseDown}
+          mouseMove={progress.actions.mouseMove}
+          mouseUp={progress.actions.mouseUp}
+          controlerRef={controllerProgressRef}
+        />
       </div>
 
       <div className={`${prefix}-right`}>
@@ -121,7 +132,13 @@ const Player: React.FunctionComponent<{}> = () => {
           <i className={"iconfont icon-danquxunhuan1"}></i> */}
           <i className={"iconfont icon-suiji"}></i>
         </div>
-        <div className={"volume"}>
+        <div
+          className={"volume"}
+          onClick={() => {
+            setVolumeModelShow(status => {
+              return !status
+            })
+          }}>
           <i className={"iconfont icon-yinliang"}></i>
         </div>
         <div
@@ -134,10 +151,15 @@ const Player: React.FunctionComponent<{}> = () => {
             {Reflect.ownKeys(State.songList).length}
           </div>
         </div>
-        <VolumeModel />
+
+        <VolumeModel
+          changeStatus={setVolumeModelShow}
+          show={isVolumeModelShow}
+        />
+
         {isSongListModelShow ? (
           <SongListModel
-            songs={State.songList as Play[]}
+            songs={State.songList}
             currentIndex={State.currentIndex}
             setIndex={actions.setIndex}
             changeStatus={setSongListModelShow}

@@ -6,6 +6,7 @@ import {
   DELETE_SONG_BY_INDEX,
   SET_TIMER,
   CHANGE_SONG_PLAYING,
+  SET_VOLUME,
 } from "./constants"
 import { Play } from "@/api/request"
 
@@ -77,5 +78,13 @@ export const changeSongPlaying = (playing?: boolean) =>
     type: CHANGE_SONG_PLAYING,
     data: {
       playing,
+    },
+  } as const)
+
+export const setVolume = (volume: number) =>
+  ({
+    type: SET_VOLUME,
+    data: {
+      volume,
     },
   } as const)

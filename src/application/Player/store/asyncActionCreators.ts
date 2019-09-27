@@ -15,7 +15,7 @@ export function freshSongSrc(index: number): AsyncAction {
     const song = data.songList[index]
     let src = await getSongSrc(song.id).then(res => res.data.data[0].url)
     batch(() => {
-      dispatch(setSong(song as Play, src))
+      dispatch(setSong(song, src))
       dispatch(setIndex({ index }))
     })
   }

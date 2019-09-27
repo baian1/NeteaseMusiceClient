@@ -4,7 +4,7 @@ interface Handle {
   (progress: number): void
 }
 
-export function useProcess({
+export function useProgress({
   mouseMove: onMouseMove,
   mouseUp: onMouseUp,
   mouseDown: onMousedown,
@@ -88,6 +88,7 @@ export function useProcess({
     }
     let ele = progressWrapRef.current
     function handle(event: MouseEvent) {
+      setMaxAndLeft()
       const offsetX = transformEventXToProgress(event.x)
       setProgress(offsetX)
       onMousedown(offsetX)
@@ -97,7 +98,7 @@ export function useProcess({
     return () => {
       ele.removeEventListener("mousedown", handle)
     }
-  }, [transformEventXToProgress, onMousedown, setProgress])
+  }, [transformEventXToProgress, onMousedown, setProgress, setMaxAndLeft])
 
   //滑块的拖动状态
   useEffect(() => {
@@ -109,7 +110,6 @@ export function useProcess({
     const changeAvticeStatus = (event: MouseEvent) => {
       switch (event.type) {
         case "mousedown": {
-          // setActive(true)
           isActive.current = true
           setMaxAndLeft()
           event.stopPropagation()
@@ -119,7 +119,6 @@ export function useProcess({
           if (isActive.current) {
             onMouseUp(transformEventXToProgress(event.x))
           }
-          //setActive(false)
           isActive.current = false
           break
         }

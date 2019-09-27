@@ -164,15 +164,15 @@ export interface Play {
   id: number
   pst: number
   t: number
-  ar: [
+  ar: readonly [
     {
       id: number
       name: string
-      tns: []
-      alias: []
+      tns: readonly []
+      alias: readonly []
     }
   ]
-  alia: []
+  alia: readonly []
   pop: number
   st: number
   rt: null
@@ -184,7 +184,7 @@ export interface Play {
     id: number
     name: string
     picUrl: string
-    tns: []
+    tns: readonly []
     pic_str: string
     pic: number
   }
@@ -197,7 +197,7 @@ export interface Play {
   no: number
   rtUrl: null
   ftype: number
-  rtUrls: []
+  rtUrls: readonly []
   djId: number
   copyright: number
   s_id: number

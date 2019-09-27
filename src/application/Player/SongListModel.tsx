@@ -1,19 +1,12 @@
-import React, {
-  useState,
-  useMemo,
-  useRef,
-  useEffect,
-  useLayoutEffect,
-} from "react"
+import React, { useState, useMemo, useRef, useLayoutEffect } from "react"
 import { Play } from "@/api/request"
-import { formatTime } from "@/utils/time"
 import "./style/SongListModel.less"
 import { useDispatchTs } from "@/stroe/hook"
 import { actionCreators } from "./store"
 import Row from "./Row"
 
 interface P {
-  songs: Play[]
+  songs: readonly Play[]
   currentIndex: number
   setIndex(index: number): void
   changeStatus(status: boolean): void
