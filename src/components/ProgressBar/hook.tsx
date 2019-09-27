@@ -1,17 +1,17 @@
-import { useRef, useEffect, useMemo, useState } from "react"
+import { useRef, useEffect, useMemo } from "react"
 
-interface handle {
+interface Handle {
   (progress: number): void
 }
 
 export function useProcess({
   mouseMove: onMouseMove,
   mouseUp: onMouseUp,
-  mousedown: onMousedown,
+  mouseDown: onMousedown,
 }: {
-  mouseMove: handle
-  mouseUp: handle
-  mousedown: handle
+  mouseMove: Handle
+  mouseUp: Handle
+  mouseDown: Handle
 }) {
   //需要用到的dom元素
   const pointRef = useRef<HTMLDivElement>(null)
@@ -19,7 +19,7 @@ export function useProcess({
   const progressWrapRef = useRef<HTMLDivElement>(null)
 
   //进度条的活动状态
-  const [isActive, setActive] = useState(false)
+  const isActive = useRef(false)
 
   /**
    * 确定进度条位置和长度
@@ -91,7 +91,7 @@ export function useProcess({
       const offsetX = transformEventXToProgress(event.x)
       setProgress(offsetX)
       onMousedown(offsetX)
-      setActive(true)
+      isActive.current = true
     }
     ele.addEventListener("mousedown", handle)
     return () => {
@@ -109,16 +109,18 @@ export function useProcess({
     const changeAvticeStatus = (event: MouseEvent) => {
       switch (event.type) {
         case "mousedown": {
-          setActive(true)
+          // setActive(true)
+          isActive.current = true
           setMaxAndLeft()
           event.stopPropagation()
           break
         }
         case "mouseup": {
-          if (isActive) {
+          if (isActive.current) {
             onMouseUp(transformEventXToProgress(event.x))
           }
-          setActive(false)
+          //setActive(false)
+          isActive.current = false
           break
         }
       }
@@ -129,14 +131,14 @@ export function useProcess({
       pointEle.removeEventListener("mousedown", changeAvticeStatus)
       document.removeEventListener("mouseup", changeAvticeStatus)
     }
-  }, [transformEventXToProgress, isActive, onMouseUp, setMaxAndLeft])
+  }, [transformEventXToProgress, onMouseUp, setMaxAndLeft])
 
   //滑块拖动进行时
   useEffect(() => {
     const mouseRangeEle = document
     const mouseMove = (event: MouseEvent) => {
       let offsetX = transformEventXToProgress(event.x)
-      if (!isActive) {
+      if (!isActive.current) {
         return
       }
       onMouseMove(offsetX)
@@ -147,11 +149,16 @@ export function useProcess({
     return () => {
       mouseRangeEle.removeEventListener("mousemove", mouseMove)
     }
-  }, [transformEventXToProgress, isActive, onMouseMove, setProgress])
+  }, [transformEventXToProgress, onMouseMove, setProgress])
 
   return {
     pointRef,
     progressCurrentRef,
     progressWrapRef,
+    setProgressInidle: (offset: number) => {
+      if (isActive.current === false) {
+        setProgress(offset)
+      }
+    },
   }
 }
