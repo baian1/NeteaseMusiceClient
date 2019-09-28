@@ -10,7 +10,8 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.response.use(
   res => res,
   err => {
-    console.log(err, "网络错误")
+    console.log("网络请求出错")
+    return err.response
   }
 )
 

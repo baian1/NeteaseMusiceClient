@@ -42,29 +42,9 @@ const defaultState: Data = {
   mode: playMode.sequence,
 }
 
-export default produce((dragft: Data = defaultState, action: Actions) => {
+const songStatus = (dragft: Data = defaultState, action: Actions) => {
+  let isChange = true
   switch (action.type) {
-    case actionTypes.ADD_SONG: {
-      let data = action.data
-      dragft.songList = data
-      break
-    }
-    case actionTypes.DELETE_SONG: {
-      let data = action.data.id
-      data.forEach(id => {
-        delete dragft.songList[id]
-      })
-      break
-    }
-    case actionTypes.DELETE_SONG_BY_INDEX: {
-      dragft.songList.splice(action.data.index, 1)
-      break
-    }
-    case actionTypes.SET_INDEX: {
-      let { index } = action.data
-      dragft.currentIndex = index
-      break
-    }
     case actionTypes.SET_SONG_SRC: {
       const { song, src } = action.data
       dragft.songStatus.src = src
@@ -92,7 +72,95 @@ export default produce((dragft: Data = defaultState, action: Actions) => {
       break
     }
     default: {
-      return dragft
+      isChange = false
     }
   }
+  return isChange
+}
+
+const songListStatus = (dragft: Data = defaultState, action: Actions) => {
+  let isChange = true
+  switch (action.type) {
+    case actionTypes.ADD_SONG: {
+      let data = action.data
+      dragft.songList = data
+      break
+    }
+    case actionTypes.DELETE_SONG: {
+      let data = action.data.id
+      data.forEach(id => {
+        delete dragft.songList[id]
+      })
+      break
+    }
+    case actionTypes.DELETE_SONG_BY_INDEX: {
+      dragft.songList.splice(action.data.index, 1)
+      break
+    }
+    default: {
+      isChange = false
+    }
+  }
+  return isChange
+}
+
+const selectSong = (dragft: Data = defaultState, action: Actions) => {
+  let isChange = true
+  switch (action.type) {
+    case actionTypes.SET_INDEX: {
+      let { index } = action.data
+      dragft.currentIndex = index
+      break
+    }
+    case actionTypes.NXET_SONG: {
+      let { direction } = action.data
+      let nextIndex = dragft.currentIndex
+      if (direction === "pre") {
+        nextIndex--
+      } else if (direction === "next") {
+        nextIndex++
+      }
+      switch (dragft.mode) {
+        case playMode.loop:
+        case playMode.sequence: {
+          if (nextIndex === -1 || nextIndex === dragft.songList.length) {
+            nextIndex = dragft.currentIndex
+          }
+          break
+        }
+        case playMode.random: {
+          let newIndex = Math.floor(Math.random() * dragft.songList.length)
+          while (dragft.currentIndex === newIndex) {
+            newIndex = Math.floor(Math.random() * dragft.songList.length)
+          }
+          nextIndex = newIndex
+          break
+        }
+      }
+      dragft.currentIndex = nextIndex
+      break
+    }
+    case actionTypes.SET_PLAY_MODE: {
+      let { mode } = action.data
+      dragft.mode = mode
+      break
+    }
+    default: {
+      isChange = false
+    }
+  }
+  return isChange
+}
+
+export default produce((dragft: Data = defaultState, action: Actions) => {
+  if (songListStatus(dragft, action)) {
+    return
+  }
+  if (songStatus(dragft, action)) {
+    return
+  }
+  if (selectSong(dragft, action)) {
+    return
+  }
+  return dragft
 })

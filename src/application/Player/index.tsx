@@ -1,7 +1,7 @@
-import React, { useEffect, useState, useMemo, useRef } from "react"
+import React, { useEffect, useState, useRef } from "react"
 import "./style/index.less"
 import { useSelectorTs } from "@/stroe/hook"
-import { getPlayListsDetail, Play } from "@/api/request"
+import { getPlayListsDetail } from "@/api/request"
 import { useDispatch } from "react-redux"
 import { addSong } from "./store/actionCreators"
 import SongListModel from "./SongListModel"
@@ -10,6 +10,7 @@ import { usePlayer } from "./playerHook"
 import VolumeModel from "./VolumeModel"
 import ProgressBar from "@/components/ProgressBar"
 import { useForceUpdate, useDispatchAction, useProgress } from "./hook"
+import throttle from "lodash/throttle"
 
 const prefix = "Player"
 
@@ -28,8 +29,9 @@ const Player: React.FunctionComponent<{}> = () => {
   //播放器对象
   const [playerAction, sound, listen] = usePlayer(
     State.songStatus.src,
+    State.mode,
     actions.changePlaying,
-    actions.setIndex
+    actions.nextSong
   )
   const progress = useProgress(
     State.songStatus.duration,
@@ -41,16 +43,25 @@ const Player: React.FunctionComponent<{}> = () => {
 
   useEffect(() => {
     const un1 = listen(actions.setTimer)
-    const un2 = listen((current, duration) => {
-      if (controllerProgressRef.current) {
-        controllerProgressRef.current(current / duration)
-      }
-    })
+
+    const un2 = listen(
+      throttle((current, duration) => {
+        if (controllerProgressRef.current) {
+          if (duration === 0) {
+            controllerProgressRef.current(0)
+          }
+          controllerProgressRef.current(current / duration)
+        }
+      }, 1000)
+    )
     return () => {
       un1(), un2()
     }
   }, [actions.setTimer, listen])
 
+  useEffect(() => {
+    actions.freshSongSrc(State.currentIndex)
+  }, [State.currentIndex, actions])
   //测试数据加载
   const dispatch = useDispatch()
   useEffect(() => {
@@ -70,20 +81,20 @@ const Player: React.FunctionComponent<{}> = () => {
           <div
             className={"prev-next"}
             onClick={() => {
-              actions.setIndex(State.currentIndex - 1)
+              actions.nextSong("pre")
             }}>
             <i className={"iconfont icon-shangyiqu101"}></i>
           </div>
           <div
             className={"pause-play"}
             onClick={() => {
-              if (sound.playing()) {
+              if (State.songStatus.playing) {
                 playerAction.pause()
               } else {
                 playerAction.play()
               }
             }}>
-            {sound.playing() ? (
+            {State.songStatus.playing ? (
               <i className={"iconfont icon-stop"}></i>
             ) : (
               <i className={"iconfont icon-zanting1"}></i>
@@ -92,7 +103,7 @@ const Player: React.FunctionComponent<{}> = () => {
           <div
             className={"prev-next"}
             onClick={() => {
-              actions.setIndex(State.currentIndex + 1)
+              actions.nextSong("next")
             }}>
             <i className={"iconfont icon-xiayiqu101"}></i>
           </div>
@@ -127,10 +138,18 @@ const Player: React.FunctionComponent<{}> = () => {
       </div>
 
       <div className={`${prefix}-right`}>
-        <div className={"bofanfanshi"}>
-          {/* <i className={"iconfont icon-shunxubofang"}></i>
-          <i className={"iconfont icon-danquxunhuan1"}></i> */}
-          <i className={"iconfont icon-suiji"}></i>
+        <div
+          className={"bofanfanshi"}
+          onClick={() => {
+            actions.setPlayMode(State.mode)
+          }}>
+          {State.mode === 0 ? (
+            <i className={"iconfont icon-shunxubofang"}></i>
+          ) : State.mode === 1 ? (
+            <i className={"iconfont icon-danquxunhuan1"}></i>
+          ) : (
+            <i className={"iconfont icon-suiji"}></i>
+          )}
         </div>
         <div
           className={"volume"}

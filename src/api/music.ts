@@ -32,3 +32,14 @@ export const getSongSrc = (id: number) => {
     },
   })
 }
+
+export const checkMusic = (id: number) => {
+  return axiosInstance.get<{
+    success: boolean
+    message: string
+  }>("/check/music", {
+    params: {
+      id,
+    },
+  })
+}

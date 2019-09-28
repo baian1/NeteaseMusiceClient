@@ -7,9 +7,15 @@ import {
   SET_TIMER,
   CHANGE_SONG_PLAYING,
   SET_VOLUME,
+  SET_PLAY_MODE,
+  NXET_SONG,
 } from "./constants"
 import { Play } from "@/api/request"
 
+/**
+ * 列表函数
+ * @param data
+ */
 export const addSong = (data: Play[] | Play) => {
   let temp: Play[] = []
   if (Array.isArray(data)) {
@@ -43,12 +49,37 @@ export const deleteSongByIndex = (data: { index: number }) => {
   } as const
 }
 
+/**
+ * 播放歌曲控制
+ * @param data
+ */
 export const setIndex = (data: { index: number }) =>
   ({
     type: SET_INDEX,
     data,
   } as const)
 
+export const nextSong = (direction: "pre" | "next") =>
+  ({
+    type: NXET_SONG,
+    data: {
+      direction,
+    },
+  } as const)
+
+export const setPlayMode = (mode: 0 | 1 | 2) =>
+  ({
+    type: SET_PLAY_MODE,
+    data: {
+      mode,
+    },
+  } as const)
+
+/**
+ * 当前歌曲状态控制
+ * @param song
+ * @param src
+ */
 export const setSong = (song: Play, src: string) =>
   ({
     type: SET_SONG_SRC,

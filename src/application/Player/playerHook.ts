@@ -1,10 +1,12 @@
 import { useRef, useEffect, useMemo, useState } from "react"
 import { Howl } from "howler"
+import { playMode } from "./interface/Player.interface"
 
 export function usePlayer(
   src: string,
+  mode: 0 | 1 | 2,
   changePlaying: (playing: boolean) => void,
-  setIndex: (index: number) => void
+  nextSong: () => void
 ) {
   const [id, setId] = useState(0)
   const initPlay = useMemo(() => {
@@ -15,6 +17,10 @@ export function usePlayer(
   }, [])
   const sound = useRef<Howl>(initPlay)
 
+  const loopRef = useRef(mode === playMode.loop)
+  useEffect(() => {
+    loopRef.current = mode === playMode.loop
+  }, [mode])
   //订阅器
   const listenrs = useRef<Function[]>([])
   const listen = useMemo(() => {
@@ -31,8 +37,20 @@ export function usePlayer(
 
   const step = useMemo(() => {
     function step() {
+      let now = 0
+      let duration = 0
+      try {
+        duration = sound.current.duration()
+        now = sound.current.seek()
+      } catch (e) {
+        setTimeout(() => {
+          listenrs.current.forEach(item => {
+            item(0, 0)
+          })
+        }, 520)
+      }
       listenrs.current.forEach(item => {
-        item(sound.current.seek(), sound.current.duration())
+        item(now, duration)
       })
       if (sound.current.playing()) {
         requestAnimationFrame(step)
@@ -51,7 +69,7 @@ export function usePlayer(
       changePlaying(false)
     }
     function seek(per: number) {
-      if (id === 0) {
+      if (id === 0 || !id) {
         return
       }
       let nowTime = sound.current.seek()
@@ -63,23 +81,23 @@ export function usePlayer(
     function volume(tt: number) {
       sound.current.volume(tt, id)
     }
-    function skipTo(index: number) {
-      setIndex(index)
-    }
     return {
       play,
       pause,
       seek,
       volume,
-      skipTo,
     }
-  }, [changePlaying, id, setIndex])
+  }, [changePlaying, id])
 
   useEffect(() => {
-    sound.current = new Howl({
-      src: [src],
-      html5: true,
-    })
+    if (src === "") {
+      sound.current = initPlay
+    } else {
+      sound.current = new Howl({
+        src: [src],
+        html5: true,
+      })
+    }
     if (!sound.current) {
       return
     }
@@ -87,6 +105,7 @@ export function usePlayer(
     nowSound.once("load", () => {
       let id = nowSound.play()
       setId(id)
+      step()
     })
     nowSound.on("play", () => {
       step()
@@ -95,12 +114,20 @@ export function usePlayer(
     nowSound.on("seek", () => {
       step()
     })
+    nowSound.on("end", () => {
+      if (loopRef.current === true) {
+        let id = nowSound.play()
+        setId(id)
+        return
+      }
+      nextSong()
+    })
     return () => {
       if (sound.current) {
         sound.current.unload()
       }
     }
-  }, [changePlaying, src, step])
+  }, [changePlaying, initPlay, nextSong, src, step])
 
   return [soundAction, sound.current, listen] as const
 }

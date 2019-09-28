@@ -18,13 +18,22 @@ export function useDispatchAction() {
 
   const actions = useMemo(() => {
     return {
-      setIndex: (index: number) =>
-        dispatch(asyncActionCreators.freshSongSrc(index)),
+      freshSongSrc: (index: number) => {
+        dispatch(asyncActionCreators.freshSongSrc(index))
+      },
+      setIndex: (index: number) => dispatch(actionCreators.setIndex({ index })),
       setTimer: throttle((current: number, duration: number) => {
         dispatch(actionCreators.setTimer({ current, duration }))
       }, 100),
       changePlaying: (playing?: boolean) => {
         dispatch(actionCreators.changeSongPlaying(playing))
+      },
+      nextSong: (direction: "pre" | "next" = "next") => {
+        dispatch(actionCreators.nextSong(direction))
+      },
+      setPlayMode: (currentMode: 0 | 1 | 2) => {
+        let nextMode = ((currentMode + 1) % 3) as (0 | 1 | 2)
+        dispatch(actionCreators.setPlayMode(nextMode))
       },
     }
   }, [dispatch])
