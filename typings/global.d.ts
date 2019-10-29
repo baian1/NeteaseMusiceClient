@@ -7,4 +7,5 @@ declare global {
     ResizeObserver: typeof ResizeObserver
   }
 }
+
 export {}

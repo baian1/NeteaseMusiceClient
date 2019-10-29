@@ -12,7 +12,6 @@ const routes: RouteConfig[] = [
     routes: [
       {
         path: "/home",
-        // eslint-disable-next-line react/display-name
         component: HomeLayout,
         routes: [
           {
@@ -22,6 +21,15 @@ const routes: RouteConfig[] = [
           {
             path: "/home/findmusic",
             component: FindMusic,
+          },
+        ],
+      },
+      {
+        path: "/songList",
+        component: HomeLayout,
+        routes: [
+          {
+            path: "/songList/:id",
           },
         ],
       },

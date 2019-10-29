@@ -2,7 +2,7 @@ import React from "react"
 import "./style/index.less"
 import "../../assets/iconfont/iconfont.less"
 import "../../assets/iconfont2/iconfont2.less"
-import { NavLink, withRouter } from "react-router-dom"
+import { withRouter } from "react-router-dom"
 import { useNav } from "./hook"
 import { History } from "history"
 import Menu from "./Menu"
@@ -30,10 +30,10 @@ const Nav: React.FunctionComponent<{
     return () => {
       remove()
     }
-  }, [])
+  }, [history, setActive])
   React.useEffect(() => {
     setActive(location.pathname)
-  }, [])
+  }, [setActive])
 
   return (
     <nav className={`nav-wrap ${isListHidden ? "nav-wrap-hidden" : ""}`}>

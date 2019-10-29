@@ -109,19 +109,7 @@ const songListsNav: NavData[] = [
   {
     icon: "iconfont icon-liebiao",
     name: "歌单1",
-    path: "/mymusic/frends",
-    active: false,
-  },
-  {
-    icon: "iconfont icon-liebiao",
-    name: "歌单2",
-    path: "/mymusic/frends",
-    active: false,
-  },
-  {
-    icon: "iconfont icon-liebiao",
-    name: "歌单3",
-    path: "/mymusic/frends",
+    path: "/songList/111",
     active: false,
   },
 ]
